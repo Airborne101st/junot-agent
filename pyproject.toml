@@ -1,0 +1,14 @@
+[project]
+name = "junot-agent"
+version = "0.0.1"
+description = "A personal agent harness, built one step at a time to learn harness engineering."
+requires-python = ">=3.11"
+# One runtime dependency on purpose: the OpenAI client, pointed at Gemini's
+# OpenAI-compatible endpoint. Everything else is the standard library.
+dependencies = ["openai>=1.40"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

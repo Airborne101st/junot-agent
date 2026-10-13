@@ -11,13 +11,22 @@ import json
 from types import SimpleNamespace
 
 
-def tool_call(name: str, args: dict, call_id: str = "call_1"):
-    """One entry of message.tool_calls. Note: arguments is a JSON *string*."""
-    return SimpleNamespace(
+def tool_call(name: str, args: dict, call_id: str = "call_1", extra_content: dict | None = None):
+    """One entry of message.tool_calls. Note: arguments is a JSON *string*.
+
+    `extra_content` is what a provider adds beyond the OpenAI shape. Gemini 3
+    puts {"google": {"thought_signature": "..."}} here on every tool call, and
+    refuses the next request with a 400 if it is not sent back. Like the real
+    SDK object, the attribute exists only when the provider sent it.
+    """
+    call = SimpleNamespace(
         id=call_id,
         type="function",
         function=SimpleNamespace(name=name, arguments=json.dumps(args)),
     )
+    if extra_content is not None:
+        call.extra_content = extra_content
+    return call
 
 
 def reply(content: str | None = None, tool_calls: list | None = None):

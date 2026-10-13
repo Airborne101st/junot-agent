@@ -104,6 +104,21 @@ def test_assistant_tool_request_is_kept_in_wire_shape():
     }]
 
 
+def test_provider_extras_on_a_tool_call_are_sent_back():
+    """Gemini 3 found this one live: a 400 "Function call is missing a
+    thought_signature". The loop rebuilt each tool call from id, type and
+    function only, and dropped the signature Gemini attached in extra_content."""
+    signature = {"google": {"thought_signature": "sig-abc"}}
+    client = ScriptedClient([
+        reply(tool_calls=[tool_call("get_time", {"timezone": "UTC"}, "call_1", signature)]),
+        reply("Noon."),
+    ])
+    run_loop(client, MODEL, _start(), [GET_TIME_SCHEMA], _recording_fns([]))
+
+    sent_back = client.calls[1]["messages"][-2]["tool_calls"][0]
+    assert sent_back["extra_content"] == signature
+
+
 def test_two_tool_calls_in_one_reply_both_run_in_order():
     seen: list[str] = []
     client = ScriptedClient([

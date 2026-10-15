@@ -1,31 +1,31 @@
 """THE LOOP: reason, act, observe, repeat.
-
-YOUR CODE (step 1). See docs/steps/01-the-loop.md.
 """
 
 from __future__ import annotations
-import json
-from collections.abc import Callable
+from junot.registry import ToolRegistry
+
+LIMIT_NOTE = "Call limits are exhausted, do not call any tools now. Answer from what you currently have and say what's missing."
+LIMIT_REPLY = "I ran out of steps before finishing. Try asking for less at once, or ask again."
 
 
 def run_loop(
     client,
     model: str,
     messages: list[dict],
-    tool_schemas: list[dict],
-    tool_fns: dict[str, Callable[..., str]],
+    tools: ToolRegistry,
+    max_iterations: int = 10,
 ) -> str:
     """Run one agent turn and return the reply text.
 
     `messages` starts as [system, ...history, user] and is mutated in place:
     afterwards it holds every assistant message and tool result of the turn.
     """
-    while True:
+    for iteration in range(max_iterations):
         #Get response from the model
         response = client.chat.completions.create(
             model=model,
             messages=messages,
-            tools=tool_schemas
+            tools=tools.schemas()
         )
         message = response.choices[0].message
 
@@ -60,9 +60,9 @@ def run_loop(
 
         #Call the tool and append in the messages
         for call in message.tool_calls:
-            fn = tool_fns[call.function.name]
-            args = json.loads(call.function.arguments)
-            output = fn(**args)
+            tool_name = call.function.name
+            arguments = call.function.arguments
+            output = tools.execute(tool_name, arguments)
             messages.append({
                 "role": "tool",
                 "tool_call_id": call.id,
@@ -70,3 +70,19 @@ def run_loop(
             })
 
 
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages= messages + [{"role": "user", "content": LIMIT_NOTE}],
+            tools=tools.schemas(),
+            tool_choice="none"
+        )
+    except Exception as e:
+        return LIMIT_REPLY
+
+    message = response.choices[0].message
+    if not message.content:
+        return LIMIT_REPLY
+
+    messages.append({"role": "assistant", "content": message.content})
+    return message.content

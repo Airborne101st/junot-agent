@@ -29,6 +29,8 @@ class Settings:
     api_key: str
     model: str
     base_url: str = GEMINI_BASE_URL
+    # Where Junot keeps what outlives a turn: SOUL.md now, memory later.
+    home: Path = Path.home() / ".junot"
 
 
 def load_settings() -> Settings:
@@ -36,4 +38,6 @@ def load_settings() -> Settings:
     key = os.getenv("GEMINI_API_KEY", "")
     if not key:
         raise SystemExit("GEMINI_API_KEY is not set. Copy .env.example to .env and paste your key.")
-    return Settings(api_key=key, model=os.getenv("JUNOT_MODEL", "gemini-3.6-flash"))
+    home = Path(os.getenv("JUNOT_HOME", Path.home() / ".junot")).expanduser()
+    home.mkdir(parents=True, exist_ok=True)
+    return Settings(api_key=key, model=os.getenv("JUNOT_MODEL", "gemini-3.6-flash"), home=home)

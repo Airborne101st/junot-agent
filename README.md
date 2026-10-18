@@ -29,7 +29,7 @@ the end of the guide.
 | 1 | [The bare loop](docs/steps/01-the-loop.md) | Loop | "Time in Tokyo?" is answered via the tool |
 | 2 | [Tool registry, errors as text, iteration cap, tools-off final answer](docs/steps/02-the-harness.md) | Loop | A tool that raises doesn't crash the turn |
 | 3 | [Session: system prompt rebuilt per turn from SOUL.md, clock, history](docs/steps/03-the-session.md) | Harness | Editing SOUL.md changes behaviour, no code change |
-| 4 | Observer and JSONL traces with token counts | Ops | Any turn can be rebuilt from its trace |
+| 4 | [Observer and JSONL traces with token counts](docs/steps/04-observe.md) | Ops | Any turn can be rebuilt from its trace |
 | 5 | Memory: SQLite FTS5 facts and a `save_note` tool | Memory | "Remember X", restart, it recalls X |
 | 6 | Retrieval gate (small model, JSON decision, fails open) | Memory | "2+2" skips retrieval, and the trace shows it |
 | 7 | Consolidation every N exchanges into facts and episodes | Memory | Facts appear without calling `save_note` |

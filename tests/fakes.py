@@ -29,13 +29,22 @@ def tool_call(name: str, args: dict, call_id: str = "call_1", extra_content: dic
     return call
 
 
-def reply(content: str | None = None, tool_calls: list | None = None):
-    """One ChatCompletion: either text, or tool calls (content may be None)."""
+def reply(content: str | None = None, tool_calls: list | None = None,
+          tokens: tuple[int, int] | None = (0, 0)):
+    """One ChatCompletion: either text, or tool calls (content may be None).
+
+    `tokens` is (prompt_tokens, completion_tokens). Pass None for a response
+    with no usage at all, which some OpenAI-compatible providers send.
+    """
     message = SimpleNamespace(role="assistant", content=content, tool_calls=tool_calls or None)
+    usage = None
+    if tokens is not None:
+        usage = SimpleNamespace(prompt_tokens=tokens[0], completion_tokens=tokens[1],
+                                total_tokens=tokens[0] + tokens[1])
     return SimpleNamespace(
         choices=[SimpleNamespace(message=message,
                                  finish_reason="tool_calls" if tool_calls else "stop")],
-        usage=SimpleNamespace(prompt_tokens=0, completion_tokens=0, total_tokens=0),
+        usage=usage,
     )
 
 

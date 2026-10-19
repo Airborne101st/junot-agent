@@ -4,5 +4,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .junot/
+# Junot's own data when JUNOT_HOME points here: SOUL.md, traces, state.db.
+data/
 .idea/
 .DS_Store

@@ -9,6 +9,7 @@ from __future__ import annotations
 from junot.client import get_client
 from junot.config import load_settings
 from junot.loop import run_loop
+from junot.memory import Memory
 from junot.observe import Tracer, compose
 from junot.session import Session
 from junot.tools import build_registry
@@ -24,11 +25,13 @@ def console(kind: str, event: dict) -> None:
 def main() -> None:
     settings = load_settings()
     client = get_client(settings)
-    tools = build_registry()
+    memory = Memory(settings.home / "state.db")
+    tools = build_registry(memory)
     session = Session(settings.home, settings.model)
     tracer = Tracer(settings.home / "traces")
     observer = compose(console, tracer)
-    print(f"Junot on {settings.model}. Persona: {settings.home / 'SOUL.md'}. Ctrl-D to quit.")
+    print(f"Junot on {settings.model}. Persona: {settings.home / 'SOUL.md'}. "
+          f"Memory: {memory.path} ({len(memory.all())} notes). Ctrl-D to quit.")
     while True:
         try:
             text = input("\nyou> ").strip()

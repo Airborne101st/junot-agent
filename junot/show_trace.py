@@ -31,6 +31,16 @@ def show(events: list[dict]) -> None:
         elif kind == "gate":
             decision = f"search {e['query']!r} -> {e['hits']} note(s)" if e["retrieve"] else "skip"
             print(f"  gate   {decision} ({e['reason']}); {e['input_tokens']} in / {e['output_tokens']} out")
+        elif kind == "consolidation":
+            if e.get("error"):
+                print(f"  learn  {e['exchanges']} exchange(s) FAILED: {e['error']} (kept for next time)")
+            else:
+                print(f"  learn  {e['exchanges']} exchange(s) -> {len(e['facts'])} note(s); "
+                      f"{e['input_tokens']} in / {e['output_tokens']} out")
+                for fact in e["facts"]:
+                    print(f"         + {fact}")
+                if e["episode"]:
+                    print(f"         episode: {e['episode']}")
         elif kind == "llm":
             label = "final" if e["final"] else f"call {e['iteration']}"
             print(f"  llm    {label}: {e['input_tokens']} in / {e['output_tokens']} out, "

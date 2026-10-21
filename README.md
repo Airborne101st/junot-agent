@@ -32,7 +32,7 @@ the end of the guide.
 | 4 | [Observer and JSONL traces with token counts](docs/steps/04-observe.md) | Ops | Any turn can be rebuilt from its trace |
 | 5 | [Memory: SQLite FTS5 facts and a `save_note` tool](docs/steps/05-memory.md) | Memory | "Remember X", restart, it recalls X |
 | 6 | [Retrieval gate (small model, JSON decision, fails open)](docs/steps/06-gate.md) | Memory | "2+2" skips retrieval, and the trace shows it |
-| 7 | Consolidation every N exchanges into facts and episodes | Memory | Facts appear without calling `save_note` |
+| 7 | [Consolidation every N exchanges into facts and episodes](docs/steps/07-consolidation.md) | Memory | Facts appear without calling `save_note` |
 | 8 | Skills: SKILL.md files matched into the prompt | Memory | A new workflow is a markdown file |
 | 9 | A second gateway (Telegram or web) on the same `respond()` | Harness | Two front ends, zero loop changes |
 | 10 | LLM-as-judge eval and a release gate | Ops | A prompt or model change that lowers the score is blocked |

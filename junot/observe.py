@@ -71,7 +71,7 @@ class Tracer:
         """The observer: write one line, and count what the turn used."""
         if kind == "llm":
             self.totals["llm_calls"] += 1
-        if kind in ("llm", "gate"):
+        if kind in ("llm", "gate", "consolidation"):
             # The gate is a model call too: its tokens are part of what the
             # turn cost, even though it isn't one of the loop's calls.
             self.totals["input_tokens"] += event.get("input_tokens", 0)

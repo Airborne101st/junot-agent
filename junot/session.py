@@ -139,3 +139,7 @@ class Session:
         else:
             content = reply
         self.history.append({"role": "assistant", "content": content})
+        # Step 7: the chat log outlives the REPL, so consolidation can learn
+        # from exchanges across sessions. Same text as history, note included.
+        if self.memory is not None:
+            self.memory.log_exchange(user_message, content)

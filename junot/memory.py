@@ -45,6 +45,14 @@ class Memory:
         self.conn = sqlite3.connect(self.path)
         self.conn.execute(
             "CREATE VIRTUAL TABLE IF NOT EXISTS facts USING fts5(subject, content, created UNINDEXED)")
+        # Step 7. IF NOT EXISTS is the whole migration: a state.db from step 5
+        # gains these two tables and keeps its facts untouched.
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS chat_log (id INTEGER PRIMARY KEY, created TEXT NOT NULL, "
+            "user TEXT NOT NULL, assistant TEXT NOT NULL, consolidated INTEGER NOT NULL DEFAULT 0)")
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS episodes (id INTEGER PRIMARY KEY, date TEXT NOT NULL, "
+            "summary TEXT NOT NULL)")
         self.conn.commit()
 
     def add(self, subject: str, content: str) -> int:
@@ -71,6 +79,40 @@ class Memory:
     def all(self) -> list[dict]:
         """Every fact, oldest first."""
         return [_fact(row) for row in self.conn.execute(f"SELECT {COLUMNS} FROM facts ORDER BY rowid")]
+
+    # ---- step 7: the chat log and episodes ------------------------------------
+
+    def log_exchange(self, user: str, assistant: str) -> int:
+        """Store one exchange, not yet consolidated. Returns its id."""
+        cursor = self.conn.execute(
+            "INSERT INTO chat_log (created, user, assistant) VALUES (?, ?, ?)",
+            (self.clock().isoformat(), user, assistant))   # consolidated takes its default, 0
+        self.conn.commit()
+        return cursor.lastrowid
+
+    def unconsolidated(self) -> list[dict]:
+        """Exchanges not yet consolidated, oldest first. Each is
+        {"id", "created", "user", "assistant"}."""
+        rows = self.conn.execute(
+            "SELECT id, created, user, assistant FROM chat_log WHERE consolidated = 0 ORDER BY id")
+        return [{"id": r[0], "created": r[1], "user": r[2], "assistant": r[3]} for r in rows]
+
+    def mark_consolidated(self, ids: list[int]) -> None:
+        """Mark these exchanges as consolidated."""
+        # executemany runs the statement once per tuple: (i,) is a one-value tuple.
+        self.conn.executemany("UPDATE chat_log SET consolidated = 1 WHERE id = ?", [(i,) for i in ids])
+        self.conn.commit()
+
+    def add_episode(self, date: str, summary: str) -> int:
+        """Store one episode. Returns its id."""
+        cursor = self.conn.execute("INSERT INTO episodes (date, summary) VALUES (?, ?)", (date, summary))
+        self.conn.commit()
+        return cursor.lastrowid
+
+    def episodes(self) -> list[dict]:
+        """Every episode, oldest first. Each is {"id", "date", "summary"}."""
+        rows = self.conn.execute("SELECT id, date, summary FROM episodes ORDER BY id")
+        return [{"id": r[0], "date": r[1], "summary": r[2]} for r in rows]
 
     def close(self) -> None:
         self.conn.close()

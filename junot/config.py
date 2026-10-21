@@ -31,6 +31,8 @@ class Settings:
     base_url: str = GEMINI_BASE_URL
     # A cheaper, faster model for narrow one-shot decisions (the retrieval gate).
     small_model: str = "gemini-3.5-flash-lite"
+    # Consolidate the chat into notes after this many exchanges.
+    consolidate_every: int = 6
     # Where Junot keeps what outlives a turn: SOUL.md now, memory later.
     home: Path = Path.home() / ".junot"
 
@@ -43,4 +45,5 @@ def load_settings() -> Settings:
     home = Path(os.getenv("JUNOT_HOME", Path.home() / ".junot")).expanduser()
     home.mkdir(parents=True, exist_ok=True)
     return Settings(api_key=key, model=os.getenv("JUNOT_MODEL", "gemini-3.6-flash"),
-                    small_model=os.getenv("JUNOT_SMALL_MODEL", "gemini-3.5-flash-lite"), home=home)
+                    small_model=os.getenv("JUNOT_SMALL_MODEL", "gemini-3.5-flash-lite"),
+                    consolidate_every=int(os.getenv("JUNOT_CONSOLIDATE_EVERY", "6")), home=home)

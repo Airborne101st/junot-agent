@@ -19,6 +19,8 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
+from junot.gate import Decision
+
 
 DEFAULT_SOUL = "You are Junot, my Aide De Camp, You shall always refer to me as the 'First Consul'. Use 1700s colonial american english with me. Be honest in your responses and never claim anything which is not backed by proof."
 
@@ -61,11 +63,45 @@ def tool_note(turn: list[dict]) -> str:
 
 class Session:
     def __init__(self, home: Path, model: str,
-                 clock: Callable[[], datetime] = lambda: datetime.now().astimezone()) -> None:
+                 clock: Callable[[], datetime] = lambda: datetime.now().astimezone(),
+                 memory=None, gate=None, observer=None) -> None:
         self.home = home
         self.model = model
         self.clock = clock
         self.history = []
+        self.memory = memory
+        self.gate = gate
+        self.observer = observer or (lambda kind, event: None)
+
+    def recall(self, user_message: str) -> str:
+        """Ask the gate, search if it says yes, report the decision, and return
+        the memory section for the system prompt ("" when nothing was found)."""
+        if not self.gate:
+            # No gate behaves like a gate that always says yes: fail open.
+            decision = Decision(True, user_message, "no gate")
+        else:
+            decision = self.gate(user_message)
+        hits = self.memory.search(decision.query, limit=5) if decision.retrieve else []
+
+        self.observer("gate", {
+            "retrieve": decision.retrieve,
+            "query": decision.query,
+            "reason": decision.reason,
+            "hits": len(hits),
+            "input_tokens": decision.input_tokens,
+            "output_tokens": decision.output_tokens,
+        })
+
+        if not hits:
+            return ""
+        lines = [f"- [{hit['subject']}] {hit['content']}" for hit in hits]
+        # Say the search already happened. Without this the main model ran
+        # search_notes again for notes that were already in front of it.
+        return "\n".join([
+            f"Your notes were already searched for this message (query: {decision.query!r}). They hold:",
+            *lines,
+            "Answer from these. Call search_notes only if they don't answer the question.",
+        ])
 
     def soul(self) -> str:
         """SOUL.md's text, creating it from DEFAULT_SOUL if it doesn't exist."""
@@ -74,14 +110,22 @@ class Session:
             soul_file_path.write_text(DEFAULT_SOUL, encoding="utf-8")
         return soul_file_path.read_text(encoding="utf-8")
 
-    def build_system(self) -> str:
-        """SOUL.md + the current time (with its UTC offset) + the model name."""
+    def build_system(self, user_message: str = "") -> str:
+        """SOUL.md + the current time (with its UTC offset) + the model name,
+        and the recalled notes when there is memory and a message to judge."""
         now = self.clock()
-        return '\n'.join([self.soul(), f"Right now it is {now.strftime("%A")}, {now.isoformat(timespec="minutes")}", f"You are running on the model {self.model}"])
+        parts = [self.soul(),
+                 f"Right now it is {now.strftime('%A')}, {now.isoformat(timespec='minutes')}",
+                 f"You are running on the model {self.model}"]
+        if self.memory is not None and user_message:
+            section = self.recall(user_message)
+            if section:
+                parts.append(section)
+        return "\n".join(parts)
 
     def build_messages(self, user_message: str) -> list[dict]:
         """[system] + history + [user]: a NEW list, ready for run_loop."""
-        return [{"role": "system", "content": self.build_system()},
+        return [{"role": "system", "content": self.build_system(user_message)},
                 *self.history,
                 {"role": "user", "content": user_message}]
 

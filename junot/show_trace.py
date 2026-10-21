@@ -28,6 +28,9 @@ def show(events: list[dict]) -> None:
         if kind == "turn_start":
             print(f"{e['ts']}  turn {e['turn_id']}")
             print(f"  you    {e['user']}")
+        elif kind == "gate":
+            decision = f"search {e['query']!r} -> {e['hits']} note(s)" if e["retrieve"] else "skip"
+            print(f"  gate   {decision} ({e['reason']}); {e['input_tokens']} in / {e['output_tokens']} out")
         elif kind == "llm":
             label = "final" if e["final"] else f"call {e['iteration']}"
             print(f"  llm    {label}: {e['input_tokens']} in / {e['output_tokens']} out, "

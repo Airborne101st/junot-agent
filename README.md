@@ -31,13 +31,14 @@ the end of the guide.
 | 3 | [Session: system prompt rebuilt per turn from SOUL.md, clock, history](docs/steps/03-the-session.md) | Harness | Editing SOUL.md changes behaviour, no code change |
 | 4 | [Observer and JSONL traces with token counts](docs/steps/04-observe.md) | Ops | Any turn can be rebuilt from its trace |
 | 5 | [Memory: SQLite FTS5 facts and a `save_note` tool](docs/steps/05-memory.md) | Memory | "Remember X", restart, it recalls X |
-| 6 | Retrieval gate (small model, JSON decision, fails open) | Memory | "2+2" skips retrieval, and the trace shows it |
+| 6 | [Retrieval gate (small model, JSON decision, fails open)](docs/steps/06-gate.md) | Memory | "2+2" skips retrieval, and the trace shows it |
 | 7 | Consolidation every N exchanges into facts and episodes | Memory | Facts appear without calling `save_note` |
 | 8 | Skills: SKILL.md files matched into the prompt | Memory | A new workflow is a markdown file |
 | 9 | A second gateway (Telegram or web) on the same `respond()` | Harness | Two front ends, zero loop changes |
 | 10 | LLM-as-judge eval and a release gate | Ops | A prompt or model change that lowers the score is blocked |
 | 11 | Timeouts: tools and model calls that hang | Loop | A tool that sleeps forever returns an error in seconds |
 | 12 | Trace privacy: file mode, retention, redaction | Ops | Traces are owner-only, expire, and never hold a secret |
+| 13 | Memory admin: forget and correct notes | Memory | "Forget my brother's name" deletes the row, and says so |
 
 Tests come with every step, so there's no separate "add evals" step: you
 never change the harness without a test that pins what it should do.

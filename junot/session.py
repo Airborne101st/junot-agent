@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from junot.gate import Decision
+from junot.skills import load_skills, match_skills
 
 
 DEFAULT_SOUL = "You are Junot, my Aide De Camp, You shall always refer to me as the 'First Consul'. Use 1700s colonial american english with me. Be honest in your responses and never claim anything which is not backed by proof."
@@ -64,13 +65,14 @@ def tool_note(turn: list[dict]) -> str:
 class Session:
     def __init__(self, home: Path, model: str,
                  clock: Callable[[], datetime] = lambda: datetime.now().astimezone(),
-                 memory=None, gate=None, observer=None) -> None:
+                 memory=None, gate=None, observer=None, skills_dir: Path | None = None) -> None:
         self.home = home
         self.model = model
         self.clock = clock
         self.history = []
         self.memory = memory
         self.gate = gate
+        self.skills_dir = skills_dir
         self.observer = observer or (lambda kind, event: None)
 
     def recall(self, user_message: str) -> str:
@@ -121,7 +123,18 @@ class Session:
             section = self.recall(user_message)
             if section:
                 parts.append(section)
+        if self.skills_dir is not None and user_message:
+            parts.extend(self.skill_sections(user_message))
         return "\n".join(parts)
+
+    def skill_sections(self, user_message: str) -> list[str]:
+        """The bodies of the skills this message matches, one section each.
+        The folder is read every turn, like SOUL.md: a SKILL.md added while
+        the REPL runs works on the next message."""
+        matched = match_skills(load_skills(self.skills_dir), user_message)
+        # Reported even when nothing matched, so the trace shows the check ran.
+        self.observer("skills", {"matched": [skill.name for skill in matched]})
+        return [f"Follow this skill for this request ({skill.name}):\n{skill.body}" for skill in matched]
 
     def build_messages(self, user_message: str) -> list[dict]:
         """[system] + history + [user]: a NEW list, ready for run_loop."""

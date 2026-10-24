@@ -24,6 +24,8 @@ def console(kind: str, event: dict) -> None:
             print(f"  [gate] search {event['query']!r}: {event['hits']} note(s)")
         else:
             print(f"  [gate] skip: {event['reason']}")
+    if kind == "skills" and event["matched"]:
+        print(f"  [skill] {', '.join(event['matched'])}")
     if kind == "consolidation":
         if event.get("error"):
             print(f"  [learn] failed, kept {event['exchanges']} exchange(s) for next time: {event['error']}")
@@ -42,6 +44,7 @@ def main() -> None:
     tracer = Tracer(settings.home / "traces")
     observer = compose(console, tracer)
     session = Session(settings.home, settings.model, memory=memory, observer=observer,
+                      skills_dir=settings.skills_dir,
                       gate=lambda message: should_retrieve(client, settings.small_model, message))
     print(f"Junot on {settings.model}. Persona: {settings.home / 'SOUL.md'}. "
           f"Memory: {memory.path} ({len(memory.all())} notes). Ctrl-D to quit.")

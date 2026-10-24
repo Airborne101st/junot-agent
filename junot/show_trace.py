@@ -31,6 +31,8 @@ def show(events: list[dict]) -> None:
         elif kind == "gate":
             decision = f"search {e['query']!r} -> {e['hits']} note(s)" if e["retrieve"] else "skip"
             print(f"  gate   {decision} ({e['reason']}); {e['input_tokens']} in / {e['output_tokens']} out")
+        elif kind == "skills":
+            print(f"  skills {', '.join(e['matched']) or '(none matched)'}")
         elif kind == "consolidation":
             if e.get("error"):
                 print(f"  learn  {e['exchanges']} exchange(s) FAILED: {e['error']} (kept for next time)")

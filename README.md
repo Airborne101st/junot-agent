@@ -33,7 +33,7 @@ the end of the guide.
 | 5 | [Memory: SQLite FTS5 facts and a `save_note` tool](docs/steps/05-memory.md) | Memory | "Remember X", restart, it recalls X |
 | 6 | [Retrieval gate (small model, JSON decision, fails open)](docs/steps/06-gate.md) | Memory | "2+2" skips retrieval, and the trace shows it |
 | 7 | [Consolidation every N exchanges into facts and episodes](docs/steps/07-consolidation.md) | Memory | Facts appear without calling `save_note` |
-| 8 | Skills: SKILL.md files matched into the prompt | Memory | A new workflow is a markdown file |
+| 8 | [Skills: SKILL.md files matched into the prompt](docs/steps/08-skills.md) | Memory | A new workflow is a markdown file |
 | 9 | A second gateway (Telegram or web) on the same `respond()` | Harness | Two front ends, zero loop changes |
 | 10 | LLM-as-judge eval and a release gate | Ops | A prompt or model change that lowers the score is blocked |
 | 11 | Timeouts: tools and model calls that hang | Loop | A tool that sleeps forever returns an error in seconds |

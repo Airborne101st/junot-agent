@@ -10,6 +10,9 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+# The repo's own skills/ folder: skills are part of the project, so they're committed.
+PROJECT_SKILLS = Path(__file__).resolve().parent.parent / "skills"
+
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 
@@ -35,6 +38,8 @@ class Settings:
     consolidate_every: int = 6
     # Where Junot keeps what outlives a turn: SOUL.md now, memory later.
     home: Path = Path.home() / ".junot"
+    # Folders of SKILL.md files: workflows written in markdown, not code.
+    skills_dir: Path = PROJECT_SKILLS
 
 
 def load_settings() -> Settings:
@@ -46,4 +51,5 @@ def load_settings() -> Settings:
     home.mkdir(parents=True, exist_ok=True)
     return Settings(api_key=key, model=os.getenv("JUNOT_MODEL", "gemini-3.6-flash"),
                     small_model=os.getenv("JUNOT_SMALL_MODEL", "gemini-3.5-flash-lite"),
-                    consolidate_every=int(os.getenv("JUNOT_CONSOLIDATE_EVERY", "6")), home=home)
+                    consolidate_every=int(os.getenv("JUNOT_CONSOLIDATE_EVERY", "6")), home=home,
+                    skills_dir=Path(os.getenv("JUNOT_SKILLS", PROJECT_SKILLS)).expanduser())

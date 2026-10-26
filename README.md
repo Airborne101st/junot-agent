@@ -13,7 +13,8 @@ Model: Gemini, through its OpenAI-compatible endpoint, via the `openai` client.
 uv sync
 cp .env.example .env        # paste GEMINI_API_KEY
 uv run pytest               # offline; no key needed
-uv run python -m junot      # talk to it
+uv run python -m junot      # talk to it in the terminal
+uv run python -m junot.web  # ...or at http://127.0.0.1:8765
 ```
 
 ## How each step works
@@ -34,7 +35,7 @@ the end of the guide.
 | 6 | [Retrieval gate (small model, JSON decision, fails open)](docs/steps/06-gate.md) | Memory | "2+2" skips retrieval, and the trace shows it |
 | 7 | [Consolidation every N exchanges into facts and episodes](docs/steps/07-consolidation.md) | Memory | Facts appear without calling `save_note` |
 | 8 | [Skills: SKILL.md files matched into the prompt](docs/steps/08-skills.md) | Memory | A new workflow is a markdown file |
-| 9 | A second gateway (Telegram or web) on the same `respond()` | Harness | Two front ends, zero loop changes |
+| 9 | [One `Junot.respond()`, three gateways: terminal, web, Telegram](docs/steps/09-gateways.md) | Harness | Two front ends, zero loop changes |
 | 10 | LLM-as-judge eval and a release gate | Ops | A prompt or model change that lowers the score is blocked |
 | 11 | Timeouts: tools and model calls that hang | Loop | A tool that sleeps forever returns an error in seconds |
 | 12 | Trace privacy: file mode, retention, redaction | Ops | Traces are owner-only, expire, and never hold a secret |

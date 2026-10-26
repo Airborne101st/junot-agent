@@ -42,7 +42,10 @@ class Memory:
         self.clock = clock
 
         # self.conn, not a local: every method below uses this connection.
-        self.conn = sqlite3.connect(self.path)
+        # check_same_thread=False: a gateway may answer on another thread than
+        # the one that built Junot. Junot.respond holds a lock, so only one
+        # turn at a time ever uses this connection.
+        self.conn = sqlite3.connect(self.path, check_same_thread=False)
         self.conn.execute(
             "CREATE VIRTUAL TABLE IF NOT EXISTS facts USING fts5(subject, content, created UNINDEXED)")
         # Step 7. IF NOT EXISTS is the whole migration: a state.db from step 5

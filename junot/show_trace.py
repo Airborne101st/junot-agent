@@ -26,7 +26,8 @@ def show(events: list[dict]) -> None:
     for e in events:
         kind = e["kind"]
         if kind == "turn_start":
-            print(f"{e['ts']}  turn {e['turn_id']}")
+            where = f"  [{e['conversation']}]" if e.get("conversation") else ""
+            print(f"{e['ts']}  turn {e['turn_id']}{where}")
             print(f"  you    {e['user']}")
         elif kind == "gate":
             decision = f"search {e['query']!r} -> {e['hits']} note(s)" if e["retrieve"] else "skip"

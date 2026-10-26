@@ -60,11 +60,15 @@ class Tracer:
         with open(self.folder / f"{now:%Y-%m-%d}.jsonl", "a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
 
-    def start_turn(self, user_message: str) -> str:
-        """Begin a turn: a new turn_id, and a "turn_start" line. Returns the id."""
+    def start_turn(self, user_message: str, conversation: str | None = None) -> str:
+        """Begin a turn: a new turn_id, and a "turn_start" line. Returns the id.
+        `conversation` says which chat it came from ("cli", "web", "telegram:42")."""
         self.turn_id = uuid.uuid4().hex[:12]
         self.totals = self._zero()
-        self._write("turn_start", {"user": user_message})
+        start = {"user": user_message}
+        if conversation is not None:
+            start["conversation"] = conversation
+        self._write("turn_start", start)
         return self.turn_id
 
     def __call__(self, kind: str, event: dict) -> None:

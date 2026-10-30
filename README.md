@@ -18,6 +18,12 @@ uv run python -m junot.web  # ...or at http://127.0.0.1:8765
 uv run python -m junot.evals  # real questions, a judge, and the release gate
 ```
 
+## Learning in the lab
+
+The roadmap is finished and tagged `v1.0`. New experiments go in
+[`lab/`](lab/README.md), one folder per topic. The deployable assistant lives
+in its own repo, `junot`.
+
 ## How each step works
 
 Each step has a guide in `docs/steps/` and a test file in `tests/` that is its

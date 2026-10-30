@@ -1,0 +1,57 @@
+{
+  "saved": "2026-10-30T11:40:26+05:30",
+  "model": "gemini-3.6-flash",
+  "judge_model": "gemini-3.6-flash",
+  "cases": {
+    "date-from-the-clock": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "time-in-tokyo": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "bad-timezone": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "recall-without-searching": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "sibling-means-brother": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "unknown-fact": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "remember-on-request": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "how-did-you-know": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "trip-skill": {
+      "score": 5,
+      "passed": true,
+      "checks_passed": true
+    },
+    "forget-honestly": {
+      "score": 1,
+      "passed": false,
+      "checks_passed": true
+    }
+  }
+}

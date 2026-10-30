@@ -15,6 +15,7 @@ cp .env.example .env        # paste GEMINI_API_KEY
 uv run pytest               # offline; no key needed
 uv run python -m junot      # talk to it in the terminal
 uv run python -m junot.web  # ...or at http://127.0.0.1:8765
+uv run python -m junot.evals  # real questions, a judge, and the release gate
 ```
 
 ## How each step works
@@ -36,7 +37,7 @@ the end of the guide.
 | 7 | [Consolidation every N exchanges into facts and episodes](docs/steps/07-consolidation.md) | Memory | Facts appear without calling `save_note` |
 | 8 | [Skills: SKILL.md files matched into the prompt](docs/steps/08-skills.md) | Memory | A new workflow is a markdown file |
 | 9 | [One `Junot.respond()`, three gateways: terminal, web, Telegram](docs/steps/09-gateways.md) | Harness | Two front ends, zero loop changes |
-| 10 | LLM-as-judge eval and a release gate | Ops | A prompt or model change that lowers the score is blocked |
+| 10 | [Evals: LLM-as-judge and a release gate](docs/steps/10-evals.md) | Ops | A prompt or model change that lowers the score is blocked |
 | 11 | Timeouts: tools and model calls that hang | Loop | A tool that sleeps forever returns an error in seconds |
 | 12 | Trace privacy: file mode, retention, redaction | Ops | Traces are owner-only, expire, and never hold a secret |
 | 13 | Memory admin: forget and correct notes | Memory | "Forget my brother's name" deletes the row, and says so |

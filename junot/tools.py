@@ -25,8 +25,8 @@ def get_time(timezone: str) -> str:
 
 GET_TIME = Tool(
     name="get_time",
-    description="Get the current time in a given timezone. Use whenever the user asks about the current date "
-                "or time anywhere in the world or needs today's date or current time to work something out",
+    description="Get the current time in a given timezone other than the user’s own. Use whenever the user asks about the current date "
+                "or time anywhere in the world except user's own location or needs today's date or current time to work something out",
     parameters={
         "type": "object",
         "properties": {

@@ -8,3 +8,6 @@ __pycache__/
 data/
 .idea/
 .DS_Store
+
+# Eval runs: every reply and grade, one file per run. The baseline is committed.
+evals/results/

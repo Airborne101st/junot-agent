@@ -102,4 +102,58 @@ def build_registry(memory: Memory | None = None) -> ToolRegistry:
             fn=search_notes
         ))
 
+        # ---- step 13: forget and correct. Both name the note by its #id, which
+        # recalled notes and search_notes results both show.
+
+        def _note_id(note_id) -> int:
+            # Models send 4, "4" or "#4"; all mean the same note.
+            return int(str(note_id).strip().lstrip("#"))
+
+        def forget_note(note_id) -> str:
+            fact = memory.forget(_note_id(note_id))
+            if fact is None:
+                raise ValueError(f"there is no note #{note_id}; search_notes shows the ids")
+            return (f"Forgot note #{fact['id']} ({fact['subject']}): {fact['content']!r}. "
+                    f"It is deleted from {memory.path} and can't be recovered.")
+
+        registry.register(Tool(
+            name="forget_note",
+            description="Permanently delete one note from long-term memory. Use ONLY when the user asks you "
+                        "to forget, delete or remove something they told you. Use the note's #id from the "
+                        "notes in your instructions or from search_notes; if more than one note could be "
+                        "meant, ask which first. Never say something is forgotten without calling this: "
+                        "nothing else removes it.",
+            parameters={
+                "type": "object",
+                "properties": {"note_id": {"type": "integer", "description": "The note's id, e.g. 4 for #4."}},
+                "required": ["note_id"],
+            },
+            fn=forget_note,
+        ))
+
+        def correct_note(note_id, content: str) -> str:
+            if not content.strip():
+                raise ValueError("the corrected content is empty; use forget_note to delete a note")
+            before = memory.correct(_note_id(note_id), content.strip())
+            if before is None:
+                raise ValueError(f"there is no note #{note_id}; search_notes shows the ids")
+            return f"Corrected note #{before['id']}: was {before['content']!r}, now {content.strip()!r}."
+
+        registry.register(Tool(
+            name="correct_note",
+            description="Replace the content of one note that is wrong or out of date, when the user corrects "
+                        "something they told you before. Use the note's #id from the notes in your "
+                        "instructions or from search_notes. Write the new content as one sentence that names "
+                        "its subject, with full dates.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "note_id": {"type": "integer", "description": "The note's id, e.g. 4 for #4."},
+                    "content": {"type": "string", "description": "The corrected note, one full sentence."},
+                },
+                "required": ["note_id", "content"],
+            },
+            fn=correct_note,
+        ))
+
     return registry

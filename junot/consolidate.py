@@ -41,6 +41,8 @@ Rules for each fact:
 - Write dates in full with the weekday ("Friday, October 23, 2026"), never "tomorrow"
   or "next week".
 - Don't repeat anything in the list of facts already known.
+- If the user asked to forget or delete something in these exchanges, store nothing about
+  it, not even what they said about it in earlier exchanges.
 
 Facts already known:
 {known}

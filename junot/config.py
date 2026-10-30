@@ -36,6 +36,10 @@ class Settings:
     small_model: str = "gemini-3.5-flash-lite"
     # Consolidate the chat into notes after this many exchanges.
     consolidate_every: int = 6
+    # Seconds a model call may take before it fails (the SDK's default is 600).
+    model_timeout: float = 60.0
+    # Days of traces to keep; older files are deleted at start. 0 keeps all.
+    trace_keep_days: int = 30
     # Where Junot keeps what outlives a turn: SOUL.md now, memory later.
     home: Path = Path.home() / ".junot"
     # Folders of SKILL.md files: workflows written in markdown, not code.
@@ -52,4 +56,6 @@ def load_settings() -> Settings:
     return Settings(api_key=key, model=os.getenv("JUNOT_MODEL", "gemini-3.6-flash"),
                     small_model=os.getenv("JUNOT_SMALL_MODEL", "gemini-3.5-flash-lite"),
                     consolidate_every=int(os.getenv("JUNOT_CONSOLIDATE_EVERY", "6")), home=home,
+                    model_timeout=float(os.getenv("JUNOT_MODEL_TIMEOUT", "60")),
+                    trace_keep_days=int(os.getenv("JUNOT_TRACE_DAYS", "30")),
                     skills_dir=Path(os.getenv("JUNOT_SKILLS", PROJECT_SKILLS)).expanduser())

@@ -96,7 +96,8 @@ class Session:
 
         if not hits:
             return ""
-        lines = [f"- [{hit['subject']}] {hit['content']}" for hit in hits]
+        # The #id lets the model forget or correct a recalled note (step 13).
+        lines = [f"- #{hit['id']} [{hit['subject']}] {hit['content']}" for hit in hits]
         # Say the search already happened. Without this the main model ran
         # search_notes again for notes that were already in front of it.
         return "\n".join([

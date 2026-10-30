@@ -38,9 +38,9 @@ the end of the guide.
 | 8 | [Skills: SKILL.md files matched into the prompt](docs/steps/08-skills.md) | Memory | A new workflow is a markdown file |
 | 9 | [One `Junot.respond()`, three gateways: terminal, web, Telegram](docs/steps/09-gateways.md) | Harness | Two front ends, zero loop changes |
 | 10 | [Evals: LLM-as-judge and a release gate](docs/steps/10-evals.md) | Ops | A prompt or model change that lowers the score is blocked |
-| 11 | Timeouts: tools and model calls that hang | Loop | A tool that sleeps forever returns an error in seconds |
-| 12 | Trace privacy: file mode, retention, redaction | Ops | Traces are owner-only, expire, and never hold a secret |
-| 13 | Memory admin: forget and correct notes | Memory | "Forget my brother's name" deletes the row, and says so |
+| 11 | [Timeouts: tools and model calls that hang](docs/steps/11-timeouts.md) | Loop | A tool that sleeps forever returns an error in seconds |
+| 12 | [Trace privacy: file mode, retention, redaction](docs/steps/12-trace-privacy.md) | Ops | Traces are owner-only, expire after 30 days, and mask the secrets they recognise |
+| 13 | [Memory admin: forget and correct notes](docs/steps/13-forget-and-correct.md) | Memory | "Forget my brother's name" deletes the row, and says so |
 
 Tests come with every step, so there's no separate "add evals" step: you
 never change the harness without a test that pins what it should do.

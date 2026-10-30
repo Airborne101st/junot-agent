@@ -49,7 +49,7 @@ class Junot:
         self.observer = observer
         self.memory = Memory(settings.home / "state.db")
         self.tools = build_registry(self.memory)
-        self.tracer = Tracer(settings.home / "traces")
+        self.tracer = Tracer(settings.home / "traces", keep_days=settings.trace_keep_days)
         self.sessions: dict[str, Session] = {}
         # The current turn's own observer. Sessions are built once and hold
         # self._notify, which reads this on every event, so a per-turn

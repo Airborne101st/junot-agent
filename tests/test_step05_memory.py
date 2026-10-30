@@ -148,7 +148,7 @@ def test_without_memory_the_registry_has_only_get_time():
 
 def test_with_memory_the_registry_adds_save_note_and_search_notes(tmp_path):
     names = [s["function"]["name"] for s in build_registry(_memory(tmp_path)).schemas()]
-    assert names == ["get_time", "save_note", "search_notes"]
+    assert names == ["get_time", "save_note", "search_notes", "forget_note", "correct_note"]  # step 13 added two
 
 
 def test_the_memory_tools_say_when_to_use_them(tmp_path):

@@ -10,6 +10,7 @@ YOUR CODE (step 5). See docs/steps/05-memory.md.
 
 from __future__ import annotations
 
+import os
 import re
 import sqlite3
 from collections.abc import Callable
@@ -46,6 +47,8 @@ class Memory:
         # the one that built Junot. Junot.respond holds a lock, so only one
         # turn at a time ever uses this connection.
         self.conn = sqlite3.connect(self.path, check_same_thread=False)
+        # Step 12: your notes and chat log, readable by you only.
+        os.chmod(self.path, 0o600)
         self.conn.execute(
             "CREATE VIRTUAL TABLE IF NOT EXISTS facts USING fts5(subject, content, created UNINDEXED)")
         # Step 7. IF NOT EXISTS is the whole migration: a state.db from step 5
@@ -82,6 +85,30 @@ class Memory:
     def all(self) -> list[dict]:
         """Every fact, oldest first."""
         return [_fact(row) for row in self.conn.execute(f"SELECT {COLUMNS} FROM facts ORDER BY rowid")]
+
+    # ---- step 13: forget and correct ------------------------------------------
+
+    def get(self, note_id: int) -> dict | None:
+        rows = list(self.conn.execute(f"SELECT {COLUMNS} FROM facts WHERE rowid = ?", (note_id,)))
+        return _fact(rows[0]) if rows else None
+
+    def forget(self, note_id: int) -> dict | None:
+        """Delete one fact for good. Returns what was deleted, or None if
+        there was no such note. A real DELETE: not hidden, not flagged."""
+        fact = self.get(note_id)
+        if fact is not None:
+            self.conn.execute("DELETE FROM facts WHERE rowid = ?", (note_id,))
+            self.conn.commit()
+        return fact
+
+    def correct(self, note_id: int, content: str) -> dict | None:
+        """Replace one fact's content, keeping its id and subject. Returns the
+        fact as it was before, or None if there was no such note."""
+        fact = self.get(note_id)
+        if fact is not None:
+            self.conn.execute("UPDATE facts SET content = ? WHERE rowid = ?", (content, note_id))
+            self.conn.commit()
+        return fact
 
     # ---- step 7: the chat log and episodes ------------------------------------
 

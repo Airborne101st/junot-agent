@@ -14,6 +14,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 import json
+import threading
+
+# How long a tool may run before the model is told it timed out (step 11).
+DEFAULT_TOOL_TIMEOUT = 10.0
 
 
 @dataclass
@@ -22,6 +26,7 @@ class Tool:
     description: str
     parameters: dict[str, Any]   # a JSON Schema object, as in step 1
     fn: Callable[..., str]
+    timeout: float = DEFAULT_TOOL_TIMEOUT   # seconds
 
     def to_api(self) -> dict[str, Any]:
         """The OpenAI-shape schema this tool sends in `tools=`."""
@@ -68,9 +73,26 @@ class ToolRegistry:
         except json.JSONDecodeError as e:
             return f'Error: Invalid JSON arguments: {arguments} for tool:{name}, Error - {e}'
 
-        try:
-            output = tool.fn(**args)
-        except Exception as e:
-            return f'Error: Failed call on tool {name}, arguments: {arguments}, Error - {e}'
+        # Step 11: run the tool on a worker thread and wait at most tool.timeout.
+        # try/except catches what a tool raises; a tool that hangs raises
+        # nothing, and without this it would block the turn forever (the
+        # time.sleep(500) experiment). Python can't kill a thread, so a
+        # timed-out tool is abandoned, not stopped: it may still finish in the
+        # background, and the error says so rather than pretend otherwise.
+        result: dict = {}
 
-        return output
+        def run() -> None:
+            try:
+                result["output"] = tool.fn(**args)
+            except Exception as e:   # caught here, on the worker, and reported below
+                result["error"] = e
+
+        worker = threading.Thread(target=run, daemon=True)   # daemon: never keeps Junot from quitting
+        worker.start()
+        worker.join(tool.timeout)
+        if worker.is_alive():
+            return (f'Error: {name} timed out after {tool.timeout:g}s and was abandoned '
+                    f'(it may still finish in the background). Tell the user it did not complete.')
+        if "error" in result:
+            return f'Error: Failed call on tool {name}, arguments: {arguments}, Error - {result["error"]}'
+        return result["output"]
